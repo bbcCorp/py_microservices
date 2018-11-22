@@ -17,3 +17,18 @@ log_settings = {
 
 flask_api_url = "http://localhost:5000/customers"
 django_api_url = "http://localhost:8000/api/customers/"
+
+KAFKA_CONFIG = {
+
+    "producer" : {
+        "bootstrap.servers" : "localhost:9092"
+    },
+
+    "consumer" : {
+        "bootstrap.servers": "localhost:9092",
+        "auto.commit.interval.ms": 5000,
+        "auto.offset.reset": "earliest",
+        "group.id": "test-consumer-group-1"
+    }
+    
+} 

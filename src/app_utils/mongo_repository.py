@@ -39,7 +39,7 @@ class MongoRepository():
         self.collection = self.db[collection]
             
     ###########################################################################
-    def create(self, entity: DbEntity):
+    def create(self, entity:DbEntity):
         '''
             api to create entity. Returns newly created entity id if successful
         '''

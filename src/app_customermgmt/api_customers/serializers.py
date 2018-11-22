@@ -1,3 +1,4 @@
+from datetime import datetime
 from rest_framework import serializers
 from api_customers.models import Customer
 
@@ -32,5 +33,7 @@ class CustomerSerializer(serializers.Serializer):
         instance.name = validated_data.get('name', instance.name)
         instance.phone = validated_data.get('phone', instance.phone)
         instance.email = validated_data.get('email', instance.email)
+        instance.updated_on = datetime.utcnow()
+
         instance.save()
         return instance    

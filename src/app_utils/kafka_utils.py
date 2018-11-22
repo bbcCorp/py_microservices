@@ -34,7 +34,7 @@ class SimpleKafkaMessage():
 ###############################################################################
 class SimpleKafkaProducer():
 
-    def __init__(self, logger, config=None):
+    def __init__(self, logger=None, config=None):
         '''
             Param:
             * logger: an instance of python logger class 
@@ -49,7 +49,9 @@ class SimpleKafkaProducer():
             config = {'bootstrap.servers': 'localhost:9092'}
 
         self._producer = Producer(config)
-        self.logger.debug('Kafka producer has been setup.')
+
+        if self.logger:
+            self.logger.debug('Kafka producer has been setup.')
 
     ###########################################################################
     def produce(self, topic, message, key=None, callback=None):
@@ -59,7 +61,10 @@ class SimpleKafkaProducer():
             * a Unicode object 
             * None. 
         '''
-        
+
+        # debug = "topic:{0} :: message:{1}".format(topic, message)
+        # print(debug)
+
         self._producer.produce(topic, key=key, value=message, callback=callback)
 
         # The flush method blocks until all outstanding produce commands have completed
@@ -70,7 +75,7 @@ class SimpleKafkaProducer():
 ###############################################################################
 class SimpleKafkaConsumer():
 
-    def __init__(self, logger, config=None):
+    def __init__(self, logger=None, config=None):
         '''
             Param:
             * logger: an instance of python logger class 
@@ -92,7 +97,12 @@ class SimpleKafkaConsumer():
             }
 
         self._consumer = Consumer(config)
-        self.logger.debug('Kafka consumer has been setup.')
+
+        msg = 'Kafka consumer has been setup.'
+        if self.logger:
+            self.logger.debug(msg)
+        else:
+            print(msg)
 
     ###########################################################################
     def consume(self, topics : list, process_flag=True):
@@ -117,14 +127,29 @@ class SimpleKafkaConsumer():
                         message = msg.value()  
                     )
 
-                elif msg.error().code() == KafkaError._PARTITION_EOF:                    
-                    self.logger.error('End of partition reached {0}/{1}'.format(msg.topic(), msg.partition()))
+                elif msg.error().code() == KafkaError._PARTITION_EOF:  
+                    _err = 'End of partition reached {0}/{1}'.format(msg.topic(), msg.partition())
+
+                    if self.logger:                  
+                        self.logger.error(_err)
+                    else:
+                        print(_err)
                 
                 else:
-                    self.logger.error('Error occured: {0}'.format(msg.error().str()))
+                    _err = 'Error occured: {0}'.format(msg.error().str())
+
+                    if self.logger:                  
+                        self.logger.error(_err)
+                    else:
+                        print(_err)
 
         except Exception as e:
-            self.logger.error('Error occured: {0}'.format( str(e) ) )
+            _err = 'Error occured: {0}'.format( str(e) ) 
+
+            if self.logger:                  
+                self.logger.error(_err)
+            else:
+                print(_err)
 
         finally:
             self._consumer.close()

@@ -25,39 +25,67 @@ services:
       - microservices-net     
 
 
-  # mongodb-server:
-  #   image: mongo:3.4.16-jessie 
-  #   container_name: 'microservice-mongodb-server'
-  #   restart: always
-  #   ports:
-  #     - 27017:27017
-  #   environment:
-  #     MONGO_INITDB_ROOT_USERNAME: root
-  #     MONGO_INITDB_ROOT_PASSWORD: pwd123  
-  #   volumes: 
-  #     - ./data/mongo/db:/data/db  
-  #     - ./data/mongo/logs:/var/log/mongodb          
-  #   networks:
-  #     - microservices-net    
+  mongodb-server:
+    image: mongo:3.4.16-jessie 
+    container_name: 'microservice-mongodb-server'
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pwd123  
+    volumes: 
+      - ./data/mongo/db:/data/db  
+      - ./data/mongo/logs:/var/log/mongodb          
+    networks:
+      - microservices-net    
   
-  # django-customers-api:
-  #   image: py-microservices-api-customers:1.0.0
-  #   command: sh /app/start.sh
-  #   environment:
-  #     - MICROSERVICES_ConnectionStrings__dbhost=postgresql-server
-  #     - MICROSERVICES_ConnectionStrings__dbport=5432
-  #     - MICROSERVICES_ConnectionStrings__dbuser=postgres
-  #     - MICROSERVICES_ConnectionStrings__dbpwd=postgres123
-  #     - MICROSERVICES_Logging__LogFolder=/app/logs
-  #     - MICROSERVICES_Logging__LogFile=api-customer-mgmt.log
-  #   volumes:
-  #     - ./data/api-customers/logs:/app/logs
-  #   ports:
-  #     - 8000:8000
-  #   depends_on:
-  #     - postgresql-server
-  #   networks:
-  #     - microservices-net   
+  django-customers-api:
+    image: py-microservices-api-customers:1.0.0
+    command: sh /app/start.sh
+    environment:
+      - MICROSERVICES_ConnectionStrings__dbhost=postgresql-server
+      - MICROSERVICES_ConnectionStrings__dbport=5432
+      - MICROSERVICES_ConnectionStrings__dbuser=postgres
+      - MICROSERVICES_ConnectionStrings__dbpwd=postgres123
+      - MICROSERVICES_KafkaService__Server=kafka-server:9092
+      - MICROSERVICES_Logging__LogFolder=/app/logs
+      - MICROSERVICES_Logging__LogFile=api-customer-mgmt.log
+    volumes:
+      - ./data/api-customers/logs:/app/logs
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgresql-server
+      - kafka-server
+    networks:
+      - microservices-net   
+
+
+  # Run the spotify/kafka image which contains both kafka and zookeeper
+  kafka-server:
+    image: spotify/kafka
+    container_name: 'microservice-kafka-server'
+    ports:
+        - "2181:2181"
+        - "9092:9092"
+    environment:
+      - ADVERTISED_HOST=0.0.0.0
+      - ADVERTISED_PORT=9092
+      - TOPICS=MICROSERVICE-CUSTOMER-EMAIL-NOTIFICATION,MICROSERVICE-CUSTOMER-UPDATES
+
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock  
+
+    deploy:
+      replicas: 1
+      restart_policy:
+        # Immediately restart containers if one fails.
+        condition: on-failure
+      
+    networks:
+      - microservices-net 
+
 
 networks:
   microservices-net:

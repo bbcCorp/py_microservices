@@ -1,3 +1,4 @@
+from django.core import serializers
 from django.db import models
 
 # Create your models here.
@@ -13,3 +14,7 @@ class Customer(models.Model):
     email=models.TextField(blank=False, default='')
 
     deleted = models.BooleanField(default=False)
+
+    ##########################################################################
+    def toJSON(self):
+        return serializers.serialize("json", self)    

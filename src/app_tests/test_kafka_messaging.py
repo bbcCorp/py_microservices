@@ -41,19 +41,21 @@ class SimpleMessagingTests(unittest.TestCase):
         #Setting the threshold of logger to DEBUG 
         self.logger.setLevel(CONST.log_settings["log_level"])                     
 
-
+    
     ############################################################################
     def test001_ProduceAndConsumeMessages(self):
 
         test_topic = "KafkaMessagingTest_{0}_{1}".format(self.testdate, self.testid)
 
         producer = SimpleKafkaProducer(logger=self.logger, config=CONST.KAFKA_CONFIG["producer"])
+        
         print ("Starting Producer")
         for i in range(0,100):
             msg = "Test Message {0}:{1}:{2}".format(self.testdate, self.testid, i)
             producer.produce(topic=test_topic,message=msg)
             print("Sent msg {0}: {1}".format(i,msg))
         print ("Completed sending 100 messages")
+        
         
         consumer = SimpleKafkaConsumer(logger=self.logger, config=CONST.KAFKA_CONFIG["consumer"])
         counter=1
@@ -70,6 +72,26 @@ class SimpleMessagingTests(unittest.TestCase):
                 break
 
         print ("Completed receiving 100 messages")    
+
+    
+    ############################################################################
+    def test002_ConsumeApplicationMessages(self):
+
+        consumer = SimpleKafkaConsumer(logger=self.logger, config=CONST.KAFKA_CONFIG["consumer"])
+        counter=1
+        continueFlag=True
+
+        print ("Starting Consumer")
+        for msg in consumer.consume(topics=[ 'MICROSERVICE-CUSTOMER-EMAIL-NOTIFICATION', 'MICROSERVICE-CUSTOMER-UPDATES'  ], process_flag=continueFlag):
+
+            print("Received msg: {0} # {1}".format(counter, msg.message))
+            counter +=1
+
+            if counter == 10:
+                continueFlag = False
+                break
+
+        print ("Completed receiving 10 application messages")         
 
 ###############################################################################
 if __name__ == '__main__':

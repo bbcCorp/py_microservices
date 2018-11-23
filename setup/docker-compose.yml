@@ -87,45 +87,45 @@ services:
     networks:
       - microservices-net   
 
-  # microservices-service-replication:
-  #   image: py-microservices-service-replication:1.0.0
-  #   container_name: 'py-microservices-service-replication'
-  #   environment:
-  #     # Message Queue settings
-  #     - MICROSERVICES_NotificationService_ID=consumer-update-group-1
-  #     - MICROSERVICES_KafkaService__Servers=kafka-server:9092
-  #     - MICROSERVICES_KafkaService__Topic=MICROSERVICE-CUSTOMER-UPDATES
+  microservices-service-replication:
+    image: py-microservices-service-replication:1.0.0
+    container_name: 'py-microservices-service-replication'
+    environment:
+      # Message Queue settings
+      - MICROSERVICES_NotificationService_ID=consumer-update-group-1
+      - MICROSERVICES_KafkaService__Servers=kafka-server:9092
+      - MICROSERVICES_KafkaService__Topic=MICROSERVICE-CUSTOMER-UPDATES
 
-  #     # Sync database settings
-  #     - MICROSERVICES_MongoDB__Url=mongodb://root:pwd123@mongodb-server
-  #     - MICROSERVICES_MongoDB__Port=27017
-  #     - MICROSERVICES_MongoDB__Db=py_microservices_api_customer
-  #     - MICROSERVICES_MongoDB__Collection=customers
+      # Sync database settings
+      - MICROSERVICES_MongoDB__Url=mongodb://root:pwd123@mongodb-server
+      - MICROSERVICES_MongoDB__Port=27017
+      - MICROSERVICES_MongoDB__Db=py_microservices_api_customer
+      - MICROSERVICES_MongoDB__Collection=customers
 
-  #     # Logging Levels
-  #     # CRITICAL = 50, FATAL = CRITICAL, ERROR = 40, WARNING = 30, WARN = WARNING, INFO = 20, DEBUG = 10, NOTSET = 0
-  #     - MICROSERVICES_Logging__LogFolder=/app/data/log
-  #     - MICROSERVICES_Logging__LogFile=message_processor_1.log      
-  #     - MICROSERVICES_Logging__LogLevel=10
-  #   depends_on:
-  #     - kafka-server
-  #     - mongodb-server
-  #     - elasticsearch-server
-  #   deploy:
-  #     replicas: 1
-  #     resources:
-  #       limits:
-  #         cpus: "0.50"
-  #         memory: 500M
-  #     restart_policy:
-  #       # Immediately restart containers if one fails.
-  #       condition: on-failure
-  #       max_attempts: 3
-  #       window: 120s
-  #   volumes: 
-  #     - ./data/service-replication:/app/data       
-  #   networks:
-  #     - microservices-net
+      # Logging Levels
+      # CRITICAL = 50, FATAL = CRITICAL, ERROR = 40, WARNING = 30, WARN = WARNING, INFO = 20, DEBUG = 10, NOTSET = 0
+      - MICROSERVICES_Logging__LogFolder=/app/data/log
+      - MICROSERVICES_Logging__LogFile=message_processor_1.log      
+      - MICROSERVICES_Logging__LogLevel=DEBUG
+    depends_on:
+      - kafka-server
+      - mongodb-server
+
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 500M
+      restart_policy:
+        # Immediately restart containers if one fails.
+        condition: on-failure
+        max_attempts: 3
+        window: 120s
+    volumes: 
+      - ./data/service-replication:/app/data       
+    networks:
+      - microservices-net
 
 
 networks:

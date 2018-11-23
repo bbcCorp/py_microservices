@@ -18,7 +18,7 @@ Logging = {
 
 MongoDB={
     "Url" : os.getenv('MICROSERVICES_MongoDB__Url') or "mongodb://root:pwd123@localhost",
-    "Port": os.getenv('MICROSERVICES_MongoDB__Port') or 27017,
+    "Port": int( os.getenv('MICROSERVICES_MongoDB__Port') or 27017),
     "Db"  : os.getenv('MICROSERVICES_MongoDB__Db') or "py_microservices_api_customer",
     "Collection"  : os.getenv('MICROSERVICES_MongoDB__Collection') or "customers"
 }

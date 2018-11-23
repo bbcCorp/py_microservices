@@ -18,15 +18,16 @@ sys.path.append(os.path.abspath(os.path.join (curpath, "../")))
 ###############################################################################
 class CustomerApiTests(unittest.TestCase):
 
-   def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.api_baseurl = CONST.django_api_url
         # self.testdate = datetime.now().strftime('%Y-%m-%d')
         # self.testid = CONST.test_id        
-
-   def test001_CustomerAPI_CRUD(self):
-
+    
+    def test001_CustomerAPI_CRUD(self):
+        # Using python requests library to test the api
+        
         headers = {
            'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36',
            'content-type' : 'application/json'
@@ -118,7 +119,7 @@ class CustomerApiTests(unittest.TestCase):
 
         except Exception as e:
             msg = "Error with GET:{0} \n {1}".format(api, str(e))
-            print(msg)
+            print(msg)    
 
 ###############################################################################
 if __name__ == '__main__':

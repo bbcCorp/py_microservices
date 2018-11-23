@@ -56,3 +56,11 @@ Use the `build.sh` script to build the docker images for application and `startu
 For development, you can use the scripts `dev-startup.sh` and `dev-shutdown.sh` to bring up and tear down the dependent components like databases and messaging server. 
 
 For unit tests, you can use the scripts `test-startup.sh` and `test-shutdown.sh`
+
+## Running the application
+To run the application, execute the following scripts
+* ./setup/dev-startup.sh
+* ./src/start-api-server.sh
+
+The application can be accessed using the url **`http://localhost:8000/api/customers/`**
+

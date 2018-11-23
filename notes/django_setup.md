@@ -117,3 +117,19 @@ Migrations for 'api_customers':
 
 Follow this tutorial for detailed step-by-step guide
 https://www.django-rest-framework.org/tutorial/
+
+
+## Testing 
+
+We will use pytest, Read the docs
+https://pytest-django.readthedocs.io/en/latest/tutorial.html 
+
+### Install the following packages
+pip install pytest pytest-django pytest-cov mixer
+
+Add the following files to the main Django project 
+* `test_settings.py` file for test database and other settings,
+* `pytest.ini` file for pytest configuration to the application root folder
+* `.coveragerc` file to state exclusions for test coverage to the application root folder
+
+You can run the tests from the root directory of the django application using the command `pytest`. Test coverage report should be generated in a folder called `htmlcov`. Look for the report `index.html`.

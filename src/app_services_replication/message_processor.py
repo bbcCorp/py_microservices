@@ -13,7 +13,7 @@ import settings as SETTINGS
 curpath = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(os.path.join (curpath, "../")))
 
-from app_utils import SimpleKafkaConsumer, SimpleKafkaMessage
+from app_messaging_utils import SimpleKafkaConsumer, SimpleKafkaMessage
 from app_models import Customer, AppEventType
 from app_utils import MongoRepository, DbEntity
 
@@ -138,12 +138,11 @@ class MessageProcessor():
             self.logger.info(msg)
             print(msg)
 
-            consumer = SimpleKafkaConsumer(logger=self.logger, config=self.config)
+            consumer = SimpleKafkaConsumer(logger=self.logger)
+            consumer.configure(config=self.config)
             
-            continueFlag=True
-
             print ("Starting Consumer")
-            for evt_msg in consumer.consume(topics=['MICROSERVICE-CUSTOMER-UPDATES'], process_flag=continueFlag):
+            for evt_msg in consumer.consume(topics=['MICROSERVICE-CUSTOMER-UPDATES']):
                 
                 counter +=1
 

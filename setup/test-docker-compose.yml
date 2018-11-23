@@ -1,0 +1,71 @@
+version: "3"
+services:
+
+
+  postgresql-server:    
+    image: postgres:10.5-alpine
+    container_name: 'microservice-pgsql-dev-server'
+    restart: always
+    ports:
+      # Note: This server listens to 5432. 
+      # The host machine's port 5432 maps to 5432. 
+      # If this is changed to any other port for hosting reason, 
+      # updated port is available only to host. 
+      # For other machines in the network the port should be  5432
+      - 5432:5432 
+    volumes:
+      - ./test-data/postgres/db:/var/lib/postgresql/data
+      - ./test-data/postgres/logs:/var/log/postgresql
+    environment:
+      POSTGRES_USER: postgres 
+      POSTGRES_PASSWORD: postgres123
+      POSTGRES_DB: microSERVICE   
+      PGDATA: /var/lib/postgresql/data/pgdata       
+    networks:
+      - microservices-devnet     
+
+  # Run the spotify/kafka image which contains both kafka and zookeeper
+  kafka-server:
+    image: spotify/kafka
+    container_name: 'microservice-kafka-dev-server'
+    ports:
+        - "2181:2181"
+        - "9092:9092"
+    environment:
+      # We need this to be 0.0.0.0 so host machines can access it as localhost
+      - ADVERTISED_HOST=0.0.0.0
+      - ADVERTISED_PORT=9092
+      - TOPICS=MICROSERVICE-CUSTOMER-EMAIL-NOTIFICATION,MICROSERVICE-CUSTOMER-UPDATES
+
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock  
+
+    deploy:
+      replicas: 1
+      restart_policy:
+        # Immediately restart containers if one fails.
+        condition: on-failure
+      
+    networks:
+      - microservices-devnet 
+
+
+  mongodb-server:
+    image: mongo:3.4.16-jessie 
+    container_name: 'microservice-mongodb-server'
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pwd123  
+    volumes: 
+      - ./test-data/mongo/db:/data/db  
+      - ./test-data/mongo/logs:/var/log/mongodb          
+    networks:
+      - microservices-devnet 
+
+networks:
+  microservices-devnet:
+
+

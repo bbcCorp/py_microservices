@@ -14,8 +14,8 @@ services:
       # For other machines in the network the port should be  5432
       - 5432:5432 
     volumes:
-      - ./../../../setup/dev-data/postgres/db:/var/lib/postgresql/data
-      - ./../../../setup/dev-data/postgres/logs:/var/log/postgresql
+      - ./dev-data/postgres/db:/var/lib/postgresql/data
+      - ./dev-data/postgres/logs:/var/log/postgresql
     environment:
       POSTGRES_USER: postgres 
       POSTGRES_PASSWORD: postgres123
@@ -25,13 +25,14 @@ services:
       - microservices-devnet     
 
   # Run the spotify/kafka image which contains both kafka and zookeeper
-  kafka:
+  kafka-server:
     image: spotify/kafka
     container_name: 'microservice-kafka-dev-server'
     ports:
         - "2181:2181"
         - "9092:9092"
     environment:
+      # We need this to be 0.0.0.0 so host machines can access it as localhost
       - ADVERTISED_HOST=0.0.0.0
       - ADVERTISED_PORT=9092
       - TOPICS=MICROSERVICE-CUSTOMER-EMAIL-NOTIFICATION,MICROSERVICE-CUSTOMER-UPDATES
@@ -48,6 +49,21 @@ services:
     networks:
       - microservices-devnet 
 
+
+  mongodb-server:
+    image: mongo:3.4.16-jessie 
+    container_name: 'microservice-mongodb-server'
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pwd123  
+    volumes: 
+      - ./dev-data/mongo/db:/data/db  
+      - ./dev-data/mongo/logs:/var/log/mongodb          
+    networks:
+      - microservices-devnet 
 
 networks:
   microservices-devnet:

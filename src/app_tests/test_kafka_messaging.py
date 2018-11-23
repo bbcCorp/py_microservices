@@ -13,7 +13,7 @@ import test_settings as CONST
 curpath = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(os.path.join (curpath, "../")))
 
-from app_utils import SimpleKafkaConsumer, SimpleKafkaMessage, SimpleKafkaProducer
+from app_messaging_utils import SimpleKafkaConsumer, SimpleKafkaMessage, SimpleKafkaProducer
 
 ###############################################################################
 class SimpleMessagingTests(unittest.TestCase):
@@ -47,7 +47,8 @@ class SimpleMessagingTests(unittest.TestCase):
 
         test_topic = "KafkaMessagingTest_{0}_{1}".format(self.testdate, self.testid)
 
-        producer = SimpleKafkaProducer(logger=self.logger, config=CONST.KAFKA_CONFIG["producer"])
+        producer = SimpleKafkaProducer(logger=self.logger)
+        producer.configure(config=CONST.KAFKA_CONFIG["producer"])
         
         print ("Starting Producer")
         for i in range(0,100):
@@ -57,41 +58,40 @@ class SimpleMessagingTests(unittest.TestCase):
         print ("Completed sending 100 messages")
         
         
-        consumer = SimpleKafkaConsumer(logger=self.logger, config=CONST.KAFKA_CONFIG["consumer"])
+        consumer = SimpleKafkaConsumer(logger=self.logger)
+        consumer.configure(config=CONST.KAFKA_CONFIG["consumer"])
         counter=1
-        continueFlag=True
 
         print ("Starting Consumer")
-        for msg in consumer.consume(topics=[test_topic], process_flag=continueFlag):
+        for msg in consumer.consume(topics=[test_topic]):
 
             print("Received msg: {0} # {1}".format(counter, msg.message))
             counter +=1
 
             if counter == 100:
-                continueFlag = False
                 break
 
         print ("Completed receiving 100 messages")    
 
-    
+    '''
     ############################################################################
     def test002_ConsumeApplicationMessages(self):
 
-        consumer = SimpleKafkaConsumer(logger=self.logger, config=CONST.KAFKA_CONFIG["consumer"])
+        consumer = SimpleKafkaConsumer(logger=self.logger)
+        consumer.configure(config=CONST.KAFKA_CONFIG["consumer"])
         counter=1
-        continueFlag=True
 
         print ("Starting Consumer")
-        for msg in consumer.consume(topics=[ 'MICROSERVICE-CUSTOMER-EMAIL-NOTIFICATION', 'MICROSERVICE-CUSTOMER-UPDATES'  ], process_flag=continueFlag):
+        for msg in consumer.consume(topics=[ 'MICROSERVICE-CUSTOMER-EMAIL-NOTIFICATION', 'MICROSERVICE-CUSTOMER-UPDATES'  ]):
 
             print("Received msg: {0} # {1}".format(counter, msg.message))
             counter +=1
 
             if counter == 10:
-                continueFlag = False
                 break
 
         print ("Completed receiving 10 application messages")         
+    '''
 
 ###############################################################################
 if __name__ == '__main__':

@@ -1,6 +1,29 @@
 version: "3"
 services:
 
+  # Run the spotify/kafka image which contains both kafka and zookeeper
+  # NOTE: Startup time is not good for this image
+  kafka-server:
+    image: spotify/kafka
+    container_name: 'microservice-kafka-server'
+    ports:
+        - "2181:2181"
+        - "9092:9092"
+    environment:
+      # ADVERTISED_HOST needs to be the Docker server name, not 0.0.0.0
+      - ADVERTISED_HOST=kafka-server
+      - ADVERTISED_PORT=9092
+      - TOPICS=MICROSERVICE-CUSTOMER-EMAIL-NOTIFICATION,MICROSERVICE-CUSTOMER-UPDATES
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock  
+    deploy:
+      replicas: 1
+      restart_policy:
+        # Immediately restart containers if one fails.
+        condition: on-failure      
+    networks:
+      - microservices-net
+
   postgresql-server:    
     image: postgres:10.5-alpine
     container_name: 'microservice-pgsql-server'
@@ -22,46 +45,7 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata       
     networks:
       - microservices-net     
-
-  # Run the spotify/kafka image which contains both kafka and zookeeper
-  kafka-server:
-    image: spotify/kafka
-    container_name: 'microservice-kafka-server'
-    ports:
-        - "2181:2181"
-        - "9092:9092"
-    environment:
-      - ADVERTISED_HOST=0.0.0.0
-      - ADVERTISED_PORT=9092
-      - TOPICS=MICROSERVICE-CUSTOMER-EMAIL-NOTIFICATION,MICROSERVICE-CUSTOMER-UPDATES
-
-    volumes: 
-      - /var/run/docker.sock:/var/run/docker.sock  
-
-    deploy:
-      replicas: 1
-      restart_policy:
-        # Immediately restart containers if one fails.
-        condition: on-failure
-      
-    networks:
-      - microservices-net 
-
-  mongodb-server:
-    image: mongo:3.4.16-jessie 
-    container_name: 'microservice-mongodb-server'
-    restart: always
-    ports:
-      - 27017:27017
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: pwd123  
-    volumes: 
-      - ./data/mongo/db:/data/db  
-      - ./data/mongo/logs:/var/log/mongodb          
-    networks:
-      - microservices-net    
-  
+   
   django-customers-api:
     image: py-microservices-api-customers:1.0.0
     container_name: 'py-microservices-api-customers'
@@ -87,6 +71,21 @@ services:
     networks:
       - microservices-net   
 
+  mongodb-server:
+    image: mongo:3.4.16-jessie 
+    container_name: 'microservice-mongodb-server'
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pwd123  
+    volumes: 
+      - ./data/mongo/db:/data/db  
+      - ./data/mongo/logs:/var/log/mongodb          
+    networks:
+      - microservices-net  
+
   microservices-service-replication:
     image: py-microservices-service-replication:1.0.0
     container_name: 'py-microservices-service-replication'
@@ -102,14 +101,13 @@ services:
       - MICROSERVICES_MongoDB__Db=py_microservices_api_customer
       - MICROSERVICES_MongoDB__Collection=customers
 
-      # Logging Levels
-      # CRITICAL = 50, FATAL = CRITICAL, ERROR = 40, WARNING = 30, WARN = WARNING, INFO = 20, DEBUG = 10, NOTSET = 0
+      # Logging Levels: CRITICAL/FATAL, ERROR, WARNING, INFO, DEBUG, NOTSET
       - MICROSERVICES_Logging__LogFolder=/app/data/log
       - MICROSERVICES_Logging__LogFile=message_processor_1.log      
       - MICROSERVICES_Logging__LogLevel=DEBUG
-    depends_on:
-      - kafka-server
+    depends_on:      
       - mongodb-server
+      - kafka-server
 
     deploy:
       replicas: 1

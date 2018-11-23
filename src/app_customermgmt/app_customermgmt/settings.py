@@ -133,7 +133,9 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
-logfolder = os.getenv('MICROSERVICES_Logging__LogFolder') or './../../logs'
+logfolder = os.getenv('MICROSERVICES_Logging__LogFolder') or './../../setup/dev-data/api-customers/logs'
+os.makedirs(logfolder, exist_ok=True)
+
 logfile = os.getenv('MICROSERVICES_Logging__LogFile') or 'django-customer-mgmt-api.log'
 logpath = os.path.abspath('{0}/{1}'.format(logfolder,logfile))
 

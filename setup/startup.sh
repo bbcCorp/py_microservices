@@ -6,5 +6,6 @@ mkdir -p ./data/postgres/logs
 mkdir -p ./data/mongo/db
 mkdir -p ./data/mongo/logs
 mkdir -p ./data/api-customers/logs
+mkdir -p ./data/service-replication/logs
 
 docker-compose up -d

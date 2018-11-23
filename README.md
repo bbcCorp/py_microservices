@@ -1,7 +1,7 @@
 # py_microSERVICES
 
 This project is developed along the same principles as  https://github.com/bbcCorp/microSERVICES
-It explores microservices using a Python3 stack with multiple databases and a messaging layer. 
+It explores a simple event-driven microservice architecture using a Python3 stack with multiple databases and a messaging layer. 
 
 Developed by: Bedabrata Chatterjee
 

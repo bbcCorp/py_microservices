@@ -11,6 +11,13 @@ RENV=Release
 # docker rm $(docker ps -a -q)
 # docker rmi $(docker images -f "dangling=true" -q)
 
-cd ./../src/app_customermgmt
+cd ./../src
 
-docker build -t py-microservices-api-customers:$RVERSION .
+## ----------------------- Build Customer Management WebApp --------------------------- ##
+docker build -t py-microservices-api-customers:$RVERSION  -f api-customer.Dockerfile .
+echo "[`date +%Y%m%d_%H:%M:%S`] Created Docker image py-microservices-api-customers:$RVERSION"
+
+
+## ----------------------- Build Data Replication Service --------------------------- ##
+docker build -t py-microservices-service-replication:$RVERSION -f service-replication.Dockerfile . 
+echo "[`date +%Y%m%d_%H:%M:%S`] Created Docker image py-microservices-service-replication:$RVERSION"

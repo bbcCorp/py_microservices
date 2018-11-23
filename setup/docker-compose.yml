@@ -1,7 +1,6 @@
 version: "3"
 services:
 
-
   postgresql-server:    
     image: postgres:10.5-alpine
     container_name: 'microservice-pgsql-server'
@@ -23,44 +22,6 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata       
     networks:
       - microservices-net     
-
-
-  mongodb-server:
-    image: mongo:3.4.16-jessie 
-    container_name: 'microservice-mongodb-server'
-    restart: always
-    ports:
-      - 27017:27017
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: pwd123  
-    volumes: 
-      - ./data/mongo/db:/data/db  
-      - ./data/mongo/logs:/var/log/mongodb          
-    networks:
-      - microservices-net    
-  
-  django-customers-api:
-    image: py-microservices-api-customers:1.0.0
-    command: sh /app/start.sh
-    environment:
-      - MICROSERVICES_ConnectionStrings__dbhost=postgresql-server
-      - MICROSERVICES_ConnectionStrings__dbport=5432
-      - MICROSERVICES_ConnectionStrings__dbuser=postgres
-      - MICROSERVICES_ConnectionStrings__dbpwd=postgres123
-      - MICROSERVICES_KafkaService__Server=kafka-server:9092
-      - MICROSERVICES_Logging__LogFolder=/app/logs
-      - MICROSERVICES_Logging__LogFile=api-customer-mgmt.log
-    volumes:
-      - ./data/api-customers/logs:/app/logs
-    ports:
-      - 8000:8000
-    depends_on:
-      - postgresql-server
-      - kafka-server
-    networks:
-      - microservices-net   
-
 
   # Run the spotify/kafka image which contains both kafka and zookeeper
   kafka-server:
@@ -85,6 +46,86 @@ services:
       
     networks:
       - microservices-net 
+
+  mongodb-server:
+    image: mongo:3.4.16-jessie 
+    container_name: 'microservice-mongodb-server'
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pwd123  
+    volumes: 
+      - ./data/mongo/db:/data/db  
+      - ./data/mongo/logs:/var/log/mongodb          
+    networks:
+      - microservices-net    
+  
+  django-customers-api:
+    image: py-microservices-api-customers:1.0.0
+    container_name: 'py-microservices-api-customers'
+    command: sh /app/start-api-server.sh
+    environment:
+      - MICROSERVICES_ConnectionStrings__dbhost=postgresql-server
+      - MICROSERVICES_ConnectionStrings__dbport=5432
+      - MICROSERVICES_ConnectionStrings__dbuser=postgres
+      - MICROSERVICES_ConnectionStrings__dbpwd=postgres123
+
+      - MICROSERVICES_KafkaService__Servers=kafka-server:9092
+      - MICROSERVICES_KafkaService__Topic=MICROSERVICE-CUSTOMER-UPDATES
+      
+      - MICROSERVICES_Logging__LogFolder=/app/logs
+      - MICROSERVICES_Logging__LogFile=api-customer-mgmt.log
+    volumes:
+      - ./data/api-customers/logs:/app/logs
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgresql-server
+      - kafka-server
+    networks:
+      - microservices-net   
+
+  # microservices-service-replication:
+  #   image: py-microservices-service-replication:1.0.0
+  #   container_name: 'py-microservices-service-replication'
+  #   environment:
+  #     # Message Queue settings
+  #     - MICROSERVICES_NotificationService_ID=consumer-update-group-1
+  #     - MICROSERVICES_KafkaService__Servers=kafka-server:9092
+  #     - MICROSERVICES_KafkaService__Topic=MICROSERVICE-CUSTOMER-UPDATES
+
+  #     # Sync database settings
+  #     - MICROSERVICES_MongoDB__Url=mongodb://root:pwd123@mongodb-server
+  #     - MICROSERVICES_MongoDB__Port=27017
+  #     - MICROSERVICES_MongoDB__Db=py_microservices_api_customer
+  #     - MICROSERVICES_MongoDB__Collection=customers
+
+  #     # Logging Levels
+  #     # CRITICAL = 50, FATAL = CRITICAL, ERROR = 40, WARNING = 30, WARN = WARNING, INFO = 20, DEBUG = 10, NOTSET = 0
+  #     - MICROSERVICES_Logging__LogFolder=/app/data/log
+  #     - MICROSERVICES_Logging__LogFile=message_processor_1.log      
+  #     - MICROSERVICES_Logging__LogLevel=10
+  #   depends_on:
+  #     - kafka-server
+  #     - mongodb-server
+  #     - elasticsearch-server
+  #   deploy:
+  #     replicas: 1
+  #     resources:
+  #       limits:
+  #         cpus: "0.50"
+  #         memory: 500M
+  #     restart_policy:
+  #       # Immediately restart containers if one fails.
+  #       condition: on-failure
+  #       max_attempts: 3
+  #       window: 120s
+  #   volumes: 
+  #     - ./data/service-replication:/app/data       
+  #   networks:
+  #     - microservices-net
 
 
 networks:

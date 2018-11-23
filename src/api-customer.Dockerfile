@@ -4,7 +4,8 @@ ENV PYTHONUNBUFFERED 1
 
 RUN mkdir /app  
 WORKDIR /app
+
 COPY . .
 
 RUN apt update && apt install -y libpq-dev
-RUN pip install -r requirements.txt
+RUN pip install -r api-customer-requirements.txt

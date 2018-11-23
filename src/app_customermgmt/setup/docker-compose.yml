@@ -14,8 +14,8 @@ services:
       # For other machines in the network the port should be  5432
       - 5432:5432 
     volumes:
-      - ./data/postgres/db:/var/lib/postgresql/data
-      - ./data/postgres/logs:/var/log/postgresql
+      - ./../../../setup/dev-data/postgres/db:/var/lib/postgresql/data
+      - ./../../../setup/dev-data/postgres/logs:/var/log/postgresql
     environment:
       POSTGRES_USER: postgres 
       POSTGRES_PASSWORD: postgres123

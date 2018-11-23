@@ -1,9 +1,13 @@
 # py_microSERVICES
 
+This project is developed along the same principles as  https://github.com/bbcCorp/microSERVICES
+It explores microservices using a Python3 stack with multiple databases and a messaging layer. 
+
 Developed by: Bedabrata Chatterjee
 
-WARNING: This is an actively developed project so things may be broken. 
-This is developed along the same principles as  https://github.com/bbcCorp/microSERVICES
+
+**WARNING: This is an actively developed project so things may be broken.**
+
 
 ## Introduction
 This application explores a simple service based architecture involving an extremely simple Customer Entity.  
@@ -12,6 +16,7 @@ This application explores a simple service based architecture involving an extre
 ### Components
 
 The application has the following high-level components
+* Python 3
 * Django and Django REST Framework 
 * PostgreSQL as data repository
 

@@ -15,6 +15,7 @@ from api_customers.serializers import CustomerSerializer
 
 import api_customers.settings as SETTINGS
 
+## Import external libraries outside the Django project
 curpath = os.path.dirname(__file__)
 sys.path.append(os.path.abspath(os.path.join (curpath, "../../")))
 from app_utils import SimpleKafkaProducer
